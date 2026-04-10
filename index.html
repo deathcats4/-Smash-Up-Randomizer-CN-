@@ -133,6 +133,8 @@
         }
         .btn-green { border-color: var(--success); color: var(--success); }
         .btn-green:hover { background: rgba(16, 185, 129, 0.1); }
+        .btn-blue { border-color: var(--primary); color: var(--primary); }
+        .btn-blue:hover { background: rgba(59, 130, 246, 0.1); }
         .btn-red { border-color: var(--danger); color: var(--danger); }
         .btn-red:hover { background: rgba(239, 68, 68, 0.1); }
 
@@ -333,6 +335,7 @@
         <div class="sets-container" id="setList"></div>
         <div class="set-actions">
             <button class="action-btn btn-green" onclick="toggleAllGlobal(true)">全部勾选</button>
+            <button class="action-btn btn-blue" onclick="applyYuleWorkshopPreset()">只选愚乐坊环境</button>
             <button class="action-btn btn-red" onclick="toggleAllGlobal(false)">全部清空</button>
         </div>
         <div class="stats-area">
@@ -589,6 +592,15 @@
     let currentPlayerCount = 4;
     let currentMode = 'random'; 
     let draftState = null;
+    const yuleWorkshopFactionIds = new Set([
+        1, 2, 3, 4, 5, 6, 7, 8,
+        9, 10, 11, 12,
+        13, 14, 15, 16,
+        17, 18, 19, 20,
+        21, 22, 23, 24,
+        37, 39, 40, 46,
+        59, 60, 61, 64
+    ]);
 
     const modes = {
         'random': { title: '纯随机分配', desc: '系统为每位玩家随机分配 2 个阵营。无需思考，直接开战！', required: 2 },
@@ -675,6 +687,17 @@
         document.querySelectorAll('.set-checkbox').forEach(cb => { cb.checked = state; cb.indeterminate = false; });
         document.querySelectorAll('.faction-cb').forEach(cb => cb.checked = state);
         updateStats();
+    }
+    function syncAllSetStates() {
+        db.sets.forEach(set => {
+            if (set.factionCount > 0) updateSetState(set.id);
+        });
+    }
+    function applyYuleWorkshopPreset() {
+        document.querySelectorAll('.faction-cb').forEach(cb => {
+            cb.checked = yuleWorkshopFactionIds.has(parseInt(cb.value));
+        });
+        syncAllSetStates();
     }
     function updateStats() {
         const checkedCbs = Array.from(document.querySelectorAll('.faction-cb:checked'));
